@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Zap, X, Navigation, MapIcon, List, Sun, Moon } from 'lucide-react';
 import { Button } from '../components/ui/button';
@@ -6,6 +6,7 @@ import { Switch } from '../components/ui/switch';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 import { Map, Marker } from 'pigeon-maps';
 import { locations, getMarkerColor, type Location } from '../data/map';
+import { Skeleton } from '../components/ui/skeleton';
 
 interface WebPageProps {
   t: (key: string) => string;
@@ -47,6 +48,30 @@ export function WebPage({ t, language }: WebPageProps) {
   const [showOtherIcons, setShowOtherIcons] = useState(false);
   const [isMapLoading, setIsMapLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  
+  // Используем ref'ы для хранения текущего состояния - они не вызывают перерендер
+  const currentZoomRef = useRef(zoom);
+  const currentCenterRef = useRef(mapCenter);
+  const touchStateRef = useRef({
+    lastTouchCenter: null as [number, number] | null,
+    lastMapCenter: [40.3850, 49.8350] as [number, number],
+    touchStartDistance: 0,
+    touchStartZoom: 12.5,
+    isPinching: false,
+    isGesturing: false,
+    lastTapTime: 0,
+    doubleTapTimeout: null as NodeJS.Timeout | null
+  });
+
+  // Синхронизируем ref'ы с состоянием
+  useEffect(() => {
+    currentZoomRef.current = zoom;
+  }, [zoom]);
+
+  useEffect(() => {
+    currentCenterRef.current = mapCenter;
+  }, [mapCenter]);
 
   // Определяем мобильное устройство при монтировании
   useEffect(() => {
@@ -70,6 +95,150 @@ export function WebPage({ t, language }: WebPageProps) {
       return () => clearTimeout(timer);
     }
   }, [viewMode]);
+
+  // Обработка touch-событий для мобильных устройств - ТОЛЬКО зависимость от isMobile
+  useEffect(() => {
+    if (!isMobile || !mapContainerRef.current) return;
+
+    const container = mapContainerRef.current;
+    const state = touchStateRef.current;
+
+    const getTouchDistance = (touches: TouchList): number => {
+      if (touches.length < 2) return 0;
+      const dx = touches[0].clientX - touches[1].clientX;
+      const dy = touches[0].clientY - touches[1].clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    };
+
+    const getTouchCenter = (touches: TouchList): [number, number] => {
+      if (touches.length === 1) {
+        return [touches[0].clientX, touches[0].clientY];
+      }
+      return [
+        (touches[0].clientX + touches[1].clientX) / 2,
+        (touches[0].clientY + touches[1].clientY) / 2
+      ];
+    };
+
+    const handleTouchStart = (e: TouchEvent) => {
+      const target = e.target as HTMLElement;
+      
+      // Пропускаем события на маркерах
+      if (target.closest('svg') || target.closest('[data-marker]')) {
+        return;
+      }
+
+      // Обработка двойного тапа (только для одного пальца)
+      if (e.touches.length === 1) {
+        const now = Date.now();
+        const timeSinceLastTap = now - state.lastTapTime;
+        
+        if (timeSinceLastTap < 300 && timeSinceLastTap > 0) {
+          // Двойной тап обнаружен - приближаем карту
+          e.preventDefault();
+          const currentZoom = currentZoomRef.current;
+          const newZoom = Math.min(18, currentZoom + 2);
+          setZoom(newZoom);
+          currentZoomRef.current = newZoom;
+          
+          // Сбрасываем время последнего тапа
+          state.lastTapTime = 0;
+          return;
+        }
+        
+        state.lastTapTime = now;
+      }
+
+      // Сохраняем начальные значения
+      state.lastTouchCenter = getTouchCenter(e.touches);
+      state.lastMapCenter = currentCenterRef.current;
+      state.isGesturing = true;
+      
+      if (e.touches.length === 2) {
+        // Начало pinch gesture
+        state.touchStartDistance = getTouchDistance(e.touches);
+        state.touchStartZoom = currentZoomRef.current;
+        state.isPinching = true;
+      } else {
+        state.isPinching = false;
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!state.isGesturing || !state.lastTouchCenter) return;
+
+      const currentCenter = getTouchCenter(e.touches);
+
+      if (e.touches.length === 2 && state.touchStartDistance > 0) {
+        // Pinch zoom
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const currentDistance = getTouchDistance(e.touches);
+        const scale = currentDistance / state.touchStartDistance;
+        
+        // Увеличенная чувствительность zoom
+        const zoomDelta = (scale - 1) * 4;
+        const newZoom = Math.min(18, Math.max(11, state.touchStartZoom + zoomDelta));
+        
+        setZoom(newZoom);
+        currentZoomRef.current = newZoom;
+        state.isPinching = true;
+        
+      } else if (e.touches.length === 1 && !state.isPinching) {
+        // Pan с одним пальцем
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const dx = currentCenter[0] - state.lastTouchCenter[0];
+        const dy = currentCenter[1] - state.lastTouchCenter[1];
+        
+        // Увеличенная чувствительность перемещения с ИНВЕРСИЕЙ направления
+        const currentZoom = currentZoomRef.current;
+        const sensitivity = 3.5;
+        const latPerPx = (0.00008 / Math.pow(2, currentZoom - 12)) * sensitivity;
+        const lngPerPx = (0.00008 / Math.pow(2, currentZoom - 12)) * sensitivity;
+        
+        // ИНВЕРСИЯ: меняем знаки на противоположные
+        const newCenter: [number, number] = [
+          state.lastMapCenter[0] + dy * latPerPx,
+          state.lastMapCenter[1] - dx * lngPerPx
+        ];
+        
+        setMapCenter(newCenter);
+        currentCenterRef.current = newCenter;
+      }
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (e.touches.length === 0) {
+        // Все пальцы убраны - сбрасываем состояние
+        state.touchStartDistance = 0;
+        state.lastTouchCenter = null;
+        state.isPinching = false;
+        state.isGesturing = false;
+      } else if (e.touches.length === 1 && state.isPinching) {
+        // Остался один палец после pinch - переключаемся на pan
+        state.lastTouchCenter = getTouchCenter(e.touches);
+        state.lastMapCenter = currentCenterRef.current;
+        state.isPinching = false;
+        state.touchStartDistance = 0;
+      }
+    };
+
+    // Добавляем обработчики
+    container.addEventListener('touchstart', handleTouchStart, { passive: true });
+    container.addEventListener('touchmove', handleTouchMove, { passive: false });
+    container.addEventListener('touchend', handleTouchEnd, { passive: true });
+    container.addEventListener('touchcancel', handleTouchEnd, { passive: true });
+
+    return () => {
+      container.removeEventListener('touchstart', handleTouchStart);
+      container.removeEventListener('touchmove', handleTouchMove);
+      container.removeEventListener('touchend', handleTouchEnd);
+      container.removeEventListener('touchcancel', handleTouchEnd);
+    };
+  }, [isMobile]); // ТОЛЬКО isMobile в зависимостях!
 
   const handleLocationClick = (location: Location) => {
     setSelectedLocation(location);
@@ -335,14 +504,14 @@ export function WebPage({ t, language }: WebPageProps) {
         {/* Map View */}
         {viewMode === 'map' && (
           <motion.div
+            ref={mapContainerRef}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: isMobile ? 0 : 0.2 }}
-            className="relative rounded-xl overflow-hidden shadow-2xl shadow-yellow-400/20 border border-yellow-400/10"
+            className="relative rounded-xl overflow-hidden shadow-2xl shadow-yellow-400/20 border border-yellow-400/10 map-touch-wrapper"
             style={{ 
               height: '70vh', 
-              minHeight: '500px',
-              touchAction: 'pan-x pan-y pinch-zoom'
+              minHeight: '500px'
             }}
           >
             {/* Loading Skeleton */}
@@ -406,15 +575,22 @@ export function WebPage({ t, language }: WebPageProps) {
               }}
               attribution={false}
               attributionPrefix={false}
-              metaWheelZoom={true}
-              metaWheelZoomWarning="Use ctrl + wheel to zoom!"
-              twoFingerDrag={false}
-              twoFingerDragWarning=""
-              warningZIndex={999}
-              mouseEvents={true}
-              touchEvents={true}
+              metaWheelZoom={!isMobile}
+              metaWheelZoomWarning={
+                !isMobile 
+                  ? language === 'ru' 
+                    ? 'Используйте Ctrl + колёсико для зума' 
+                    : language === 'en' 
+                    ? 'Use Ctrl + wheel to zoom' 
+                    : 'Zoom üçün Ctrl + təkər istifadə edin'
+                  : ''
+              }
+              mouseEvents={!isMobile}
+              touchEvents={false}
               minZoom={11}
               maxZoom={18}
+              animate={!isMobile}
+              animateMaxScreens={5}
             >
               {getFilteredLocations().map((location) => {
                 const color = getMarkerColor(location);
