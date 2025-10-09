@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Zap, X, Navigation, MapIcon, List, Sun, Moon } from 'lucide-react';
 import { Button } from '../components/ui/button';
@@ -11,6 +11,11 @@ interface WebPageProps {
   t: (key: string) => string;
   language: 'ru' | 'en' | 'az';
 }
+
+// Определение мобильного устройства
+const isMobileDevice = () => {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+};
 
 const openMapsApp = (lat: number, lng: number, locationName: string) => {
   // Определяем устройство пользователя
@@ -39,7 +44,32 @@ export function WebPage({ t, language }: WebPageProps) {
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const [mapFilter, setMapFilter] = useState<'all' | 'pickup' | 'return'>('all');
   const [isDarkMap, setIsDarkMap] = useState(true);
-  const [showOtherIcons, setShowOtherIcons] = useState(false); // По умолчанию выключено
+  const [showOtherIcons, setShowOtherIcons] = useState(false);
+  const [isMapLoading, setIsMapLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Определяем мобильное устройство при монтировании
+  useEffect(() => {
+    setIsMobile(isMobileDevice());
+    
+    const handleResize = () => {
+      setIsMobile(isMobileDevice());
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Симуляция загрузки карты
+  useEffect(() => {
+    if (viewMode === 'map') {
+      setIsMapLoading(true);
+      const timer = setTimeout(() => {
+        setIsMapLoading(false);
+      }, 800);
+      return () => clearTimeout(timer);
+    }
+  }, [viewMode]);
 
   const handleLocationClick = (location: Location) => {
     setSelectedLocation(location);
@@ -80,73 +110,107 @@ export function WebPage({ t, language }: WebPageProps) {
         >
           {/* Creative Title with Lightning Icon */}
           <div className="flex items-center justify-center gap-3 mb-4">
-            {/* Animated Lightning Icon - Left */}
-            <motion.div
-              animate={{ 
-                scale: [1, 1.2, 1],
-                rotate: [0, -10, 0]
-              }}
-              transition={{ 
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-            >
+            {/* Animated Lightning Icon - Left (simplified on mobile) */}
+            {isMobile ? (
               <Zap 
                 className="w-8 h-8 md:w-10 md:h-10" 
                 style={{
                   color: '#facc15',
                   fill: '#facc15',
-                  filter: 'drop-shadow(0 0 20px rgba(250, 204, 21, 0.8)) drop-shadow(0 0 40px rgba(250, 204, 21, 0.4))'
+                  filter: 'drop-shadow(0 0 10px rgba(250, 204, 21, 0.6))'
                 }}
               />
-            </motion.div>
+            ) : (
+              <motion.div
+                animate={{ 
+                  scale: [1, 1.2, 1],
+                  rotate: [0, -10, 0]
+                }}
+                transition={{ 
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              >
+                <Zap 
+                  className="w-8 h-8 md:w-10 md:h-10" 
+                  style={{
+                    color: '#facc15',
+                    fill: '#facc15',
+                    filter: 'drop-shadow(0 0 20px rgba(250, 204, 21, 0.8)) drop-shadow(0 0 40px rgba(250, 204, 21, 0.4))'
+                  }}
+                />
+              </motion.div>
+            )}
 
-            {/* Title with Gradient and Glow */}
-            <motion.h1 
-              className="relative"
-              style={{
-                background: 'linear-gradient(90deg, #facc15 0%, #fbbf24 50%, #facc15 100%)',
-                backgroundSize: '200% auto',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                filter: 'drop-shadow(0 0 30px rgba(250, 204, 21, 0.5))'
-              }}
-              animate={{
-                backgroundPosition: ['0% center', '200% center', '0% center']
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                ease: "linear"
-              }}
-            >
-              {t('webTitle')}
-            </motion.h1>
+            {/* Title with Gradient (static on mobile, animated on desktop) */}
+            {isMobile ? (
+              <h1 
+                className="relative"
+                style={{
+                  color: '#facc15',
+                  filter: 'drop-shadow(0 0 15px rgba(250, 204, 21, 0.4))'
+                }}
+              >
+                {t('webTitle')}
+              </h1>
+            ) : (
+              <motion.h1 
+                className="relative"
+                style={{
+                  background: 'linear-gradient(90deg, #facc15 0%, #fbbf24 50%, #facc15 100%)',
+                  backgroundSize: '200% auto',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  filter: 'drop-shadow(0 0 30px rgba(250, 204, 21, 0.5))'
+                }}
+                animate={{
+                  backgroundPosition: ['0% center', '200% center', '0% center']
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "linear"
+                }}
+              >
+                {t('webTitle')}
+              </motion.h1>
+            )}
 
-            {/* Animated Lightning Icon - Right */}
-            <motion.div
-              animate={{ 
-                scale: [1, 1.2, 1],
-                rotate: [0, 10, 0]
-              }}
-              transition={{ 
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: 1
-              }}
-            >
+            {/* Animated Lightning Icon - Right (simplified on mobile) */}
+            {isMobile ? (
               <Zap 
                 className="w-8 h-8 md:w-10 md:h-10" 
                 style={{
                   color: '#facc15',
                   fill: '#facc15',
-                  filter: 'drop-shadow(0 0 20px rgba(250, 204, 21, 0.8)) drop-shadow(0 0 40px rgba(250, 204, 21, 0.4))'
+                  filter: 'drop-shadow(0 0 10px rgba(250, 204, 21, 0.6))'
                 }}
               />
-            </motion.div>
+            ) : (
+              <motion.div
+                animate={{ 
+                  scale: [1, 1.2, 1],
+                  rotate: [0, 10, 0]
+                }}
+                transition={{ 
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 1
+                }}
+              >
+                <Zap 
+                  className="w-8 h-8 md:w-10 md:h-10" 
+                  style={{
+                    color: '#facc15',
+                    fill: '#facc15',
+                    filter: 'drop-shadow(0 0 20px rgba(250, 204, 21, 0.8)) drop-shadow(0 0 40px rgba(250, 204, 21, 0.4))'
+                  }}
+                />
+              </motion.div>
+            )}
           </div>
 
           <p className="text-white/70 max-w-2xl mx-auto">
@@ -158,7 +222,7 @@ export function WebPage({ t, language }: WebPageProps) {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+          transition={{ delay: isMobile ? 0 : 0.1 }}
           className="flex flex-col lg:flex-row items-center justify-between gap-4 mb-6 max-w-7xl mx-auto"
         >
           {/* Map Theme Switcher & Icons Toggle - слева, только в режиме карты */}
@@ -167,7 +231,7 @@ export function WebPage({ t, language }: WebPageProps) {
               <div className="flex flex-col sm:flex-row gap-3 items-center">
                 {/* Theme Switcher */}
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
+                  initial={isMobile ? { opacity: 1 } : { opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   className="flex items-center justify-center gap-3 bg-zinc-900 px-4 py-2.5 rounded-lg border border-yellow-400/20 w-full sm:w-auto"
                 >
@@ -186,9 +250,9 @@ export function WebPage({ t, language }: WebPageProps) {
 
                 {/* Show Other Icons Toggle - заблокирован в темной теме */}
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
+                  initial={isMobile ? { opacity: 1 } : { opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.05 }}
+                  transition={{ delay: isMobile ? 0 : 0.05 }}
                   className="flex items-center justify-center gap-3 bg-zinc-900 px-4 py-2.5 rounded-lg border border-yellow-400/20 w-full sm:w-auto"
                 >
                   <span className={`text-sm whitespace-nowrap transition-colors ${isDarkMap ? 'text-white/30' : 'text-white/70'}`}>{t('showOtherIcons')}</span>
@@ -273,7 +337,7 @@ export function WebPage({ t, language }: WebPageProps) {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: isMobile ? 0 : 0.2 }}
             className="relative rounded-xl overflow-hidden shadow-2xl shadow-yellow-400/20 border border-yellow-400/10"
             style={{ 
               height: '70vh', 
@@ -281,6 +345,43 @@ export function WebPage({ t, language }: WebPageProps) {
               touchAction: 'pan-x pan-y pinch-zoom'
             }}
           >
+            {/* Loading Skeleton */}
+            {isMapLoading && (
+              <div className="absolute inset-0 z-50 bg-zinc-900 flex flex-col items-center justify-center gap-4">
+                <motion.div
+                  animate={{
+                    scale: [1, 1.2, 1],
+                    opacity: [0.5, 1, 0.5]
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                >
+                  <Zap 
+                    className="w-16 h-16" 
+                    style={{
+                      color: '#facc15',
+                      fill: '#facc15',
+                      filter: 'drop-shadow(0 0 20px rgba(250, 204, 21, 0.8))'
+                    }}
+                  />
+                </motion.div>
+                <p className="text-yellow-400 text-sm">
+                  {language === 'ru' ? 'Загрузка карты...' : language === 'en' ? 'Loading map...' : 'Xəritə yüklənir...'}
+                </p>
+                <div className="w-48 h-1 bg-zinc-800 rounded-full overflow-hidden">
+                  <motion.div
+                    className="h-full bg-yellow-400"
+                    initial={{ width: '0%' }}
+                    animate={{ width: '100%' }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                  />
+                </div>
+              </div>
+            )}
+
             <Map 
               center={mapCenter} 
               zoom={zoom}
@@ -324,24 +425,44 @@ export function WebPage({ t, language }: WebPageProps) {
                     payload={location}
                     onClick={() => handleLocationClick(location)}
                   >
-                    <motion.svg
-                      width="40"
-                      height="40"
-                      viewBox="0 0 24 24"
-                      fill={color}
-                      stroke={color}
-                      strokeWidth="2"
-                      style={{
-                        cursor: 'pointer',
-                        filter: `drop-shadow(0 0 12px ${color})`,
-                        pointerEvents: 'auto',
-                      }}
-                      whileHover={{ scale: 1.3 }}
-                      whileTap={{ scale: 0.9 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z" />
-                    </motion.svg>
+                    {isMobile ? (
+                      // Упрощенный маркер для мобильных
+                      <svg
+                        width="36"
+                        height="36"
+                        viewBox="0 0 24 24"
+                        fill={color}
+                        stroke={color}
+                        strokeWidth="2"
+                        style={{
+                          cursor: 'pointer',
+                          filter: `drop-shadow(0 0 6px ${color})`,
+                          pointerEvents: 'auto',
+                        }}
+                      >
+                        <path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z" />
+                      </svg>
+                    ) : (
+                      // Анимированный маркер для десктопа
+                      <motion.svg
+                        width="40"
+                        height="40"
+                        viewBox="0 0 24 24"
+                        fill={color}
+                        stroke={color}
+                        strokeWidth="2"
+                        style={{
+                          cursor: 'pointer',
+                          filter: `drop-shadow(0 0 12px ${color})`,
+                          pointerEvents: 'auto',
+                        }}
+                        whileHover={{ scale: 1.3 }}
+                        whileTap={{ scale: 0.9 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z" />
+                      </motion.svg>
+                    )}
                   </Marker>
                 );
               })}
@@ -364,7 +485,7 @@ export function WebPage({ t, language }: WebPageProps) {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: isMobile ? 0 : 0.2 }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
           >
             {getFilteredLocations().map((location, index) => {
@@ -374,7 +495,7 @@ export function WebPage({ t, language }: WebPageProps) {
                   key={location.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
+                  transition={{ delay: isMobile ? 0 : index * 0.05 }}
                   onClick={() => handleLocationClick(location)}
                   className="bg-zinc-900 rounded-xl overflow-hidden border border-yellow-400/10 hover:border-yellow-400/30 transition-all cursor-pointer group"
                 >
@@ -383,7 +504,7 @@ export function WebPage({ t, language }: WebPageProps) {
                     <ImageWithFallback
                       src={location.image}
                       alt={location.name[language]}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      className={`w-full h-full object-cover ${isMobile ? '' : 'group-hover:scale-110 transition-transform duration-300'}`}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 to-transparent" />
                     
@@ -437,7 +558,7 @@ export function WebPage({ t, language }: WebPageProps) {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
+          transition={{ delay: isMobile ? 0 : 0.4 }}
           className="mt-6 flex flex-wrap gap-4 justify-center items-center"
         >
           <div className="flex items-center gap-2">
@@ -466,13 +587,15 @@ export function WebPage({ t, language }: WebPageProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: isMobile ? 0.2 : 0.3 }}
             className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[1000] flex items-center justify-center p-4"
             onClick={() => setSelectedLocation(null)}
           >
             <motion.div
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
+              initial={isMobile ? { y: '100%' } : { scale: 0.9, y: 20 }}
+              animate={isMobile ? { y: 0 } : { scale: 1, y: 0 }}
+              exit={isMobile ? { y: '100%' } : { scale: 0.9, y: 20 }}
+              transition={{ duration: isMobile ? 0.25 : 0.3, ease: 'easeOut' }}
               className="bg-zinc-900 rounded-2xl max-w-md w-full overflow-hidden relative border border-yellow-400/20 shadow-2xl shadow-yellow-400/20"
               onClick={(e) => e.stopPropagation()}
             >
