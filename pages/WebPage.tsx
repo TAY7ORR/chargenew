@@ -6,7 +6,6 @@ import { Switch } from '../components/ui/switch';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 import { Map, Marker } from 'pigeon-maps';
 import { locations, getMarkerColor, type Location } from '../data/map';
-import { Skeleton } from '../components/ui/skeleton';
 
 interface WebPageProps {
   t: (key: string) => string;
