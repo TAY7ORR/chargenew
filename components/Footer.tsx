@@ -127,6 +127,22 @@ export function Footer({ t, language, setLanguage, setCurrentPage }: FooterProps
                 </button>
               ))}
             </div>
+
+            {/* Legal Links */}
+            <div className="mt-6 flex flex-col gap-2">
+              <button
+                onClick={() => handleNavigation('legal')}
+                className="text-white/60 hover:text-yellow-400 transition-colors text-sm text-left"
+              >
+                {t('legalNotice')}
+              </button>
+              <button
+                onClick={() => handleNavigation('privacy')}
+                className="text-white/60 hover:text-yellow-400 transition-colors text-sm text-left"
+              >
+                {t('privacyPolicy')}
+              </button>
+            </div>
           </div>
         </div>
 

@@ -20,17 +20,22 @@ export function AboutPage({ t }: AboutPageProps) {
   ];
 
   return (
-    <div className="min-h-screen pt-24 pb-16">
-      {/* Hero Section */}
-      <section className="relative py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-yellow-500/10 via-transparent to-transparent" />
-        {/* Упрощенный фон для мобильных */}
+    <div className="min-h-screen pt-24 pb-16 relative overflow-hidden">
+      {/* Global background elements */}
+      <div className="fixed inset-0 -z-10">
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-950 to-black" />
         {!isMobile && (
-          <div className="absolute inset-0">
-            <div className="absolute top-20 left-1/4 w-72 h-72 bg-yellow-500/20 rounded-full blur-3xl animate-pulse" />
-            <div className="absolute bottom-20 right-1/4 w-96 h-96 bg-yellow-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-          </div>
+          <>
+            <div className="absolute top-0 left-1/4 w-96 h-96 bg-yellow-500/10 rounded-full blur-3xl animate-pulse" />
+            <div className="absolute top-1/3 right-1/4 w-72 h-72 bg-yellow-500/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+            <div className="absolute bottom-1/3 left-1/3 w-80 h-80 bg-yellow-500/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+          </>
         )}
+      </div>
+
+      {/* Hero Section */}
+      <section className="relative py-20">
+        <div className="absolute inset-0 bg-gradient-to-b from-yellow-500/5 via-transparent to-transparent" />
         
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
@@ -56,8 +61,8 @@ export function AboutPage({ t }: AboutPageProps) {
       </section>
 
       {/* Mission & Vision */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
+      <section className="relative py-16">
+        <div className="container mx-auto px-4 relative z-10">
           <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
             <motion.div
               initial={{ opacity: 0, x: isMobile ? 0 : -30 }}
@@ -107,8 +112,8 @@ export function AboutPage({ t }: AboutPageProps) {
       </section>
 
       {/* Values */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
+      <section className="relative py-16">
+        <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: isMobile ? 10 : 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -151,8 +156,8 @@ export function AboutPage({ t }: AboutPageProps) {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
+      <section className="relative py-16">
+        <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: isMobile ? 10 : 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -189,8 +194,8 @@ export function AboutPage({ t }: AboutPageProps) {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
+      <section className="relative py-20">
+        <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: isMobile ? 10 : 30 }}
             whileInView={{ opacity: 1, y: 0 }}

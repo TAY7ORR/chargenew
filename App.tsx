@@ -7,9 +7,13 @@ import { AppPage } from './pages/AppPage';
 import { SupportPage } from './pages/SupportPage';
 import { PartnersPage } from './pages/PartnersPage';
 import { WebPage } from './pages/WebPage';
+import { LegalNoticePage } from './pages/LegalNoticePage';
+import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
+import { EquipmentPage } from './pages/EquipmentPage';
+import { EquipmentDetailPage } from './pages/EquipmentDetailPage';
 
 export type Language = 'ru' | 'en' | 'az';
-export type Page = 'home' | 'about' | 'app' | 'support' | 'partners' | 'web';
+export type Page = 'home' | 'about' | 'app' | 'support' | 'partners' | 'web' | 'legal' | 'privacy' | 'equipment' | 'equipment-detail';
 
 export interface Translations {
   ru: Record<string, string | string[]>;
@@ -140,6 +144,9 @@ export const translations: Translations = {
     footerAbout: 'Fast Charge — современный сервис аренды повербанков в Баку.',
     footerLinks: 'Быстрые ссылки',
     footerSocial: 'Социальные сети',
+    legalNotice: 'Юридическое уведомление',
+    privacyPolicy: 'Политика конфиденциальности',
+    equipment: 'Оборудование',
     copyright: '© 2025 Fast Charge. Все права защищены.',
   },
   en: {
@@ -264,6 +271,9 @@ export const translations: Translations = {
     footerAbout: 'Fast Charge — modern power bank rental service in Baku.',
     footerLinks: 'Quick Links',
     footerSocial: 'Social Media',
+    legalNotice: 'Legal Notice',
+    privacyPolicy: 'Privacy Policy',
+    equipment: 'Equipment',
     copyright: '© 2025 Fast Charge. All rights reserved.',
   },
   az: {
@@ -388,6 +398,9 @@ export const translations: Translations = {
     footerAbout: 'Fast Charge — Bakıda müasir powerbank icarəsi xidməti.',
     footerLinks: 'Sürətli Keçidlər',
     footerSocial: 'Sosial Şəbəkələr',
+    legalNotice: 'Hüquqi Bildiriş',
+    privacyPolicy: 'Məxfilik Siyasəti',
+    equipment: 'Avadanlıq',
     copyright: '© 2025 Fast Charge. Bütün hüquqlar qorunur.',
   },
 };
@@ -395,6 +408,7 @@ export const translations: Translations = {
 export default function App() {
   const [language, setLanguage] = useState<Language>('ru');
   const [currentPage, setCurrentPage] = useState<Page>('home');
+  const [selectedEquipmentId, setSelectedEquipmentId] = useState<string | null>(null);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -457,7 +471,15 @@ export default function App() {
       case 'support':
         return <SupportPage t={t} setCurrentPage={setCurrentPage} />;
       case 'partners':
-        return <PartnersPage t={t} />;
+        return <PartnersPage t={t} setCurrentPage={setCurrentPage} />;
+      case 'equipment':
+        return <EquipmentPage language={language} setCurrentPage={setCurrentPage} setSelectedEquipmentId={setSelectedEquipmentId} />;
+      case 'equipment-detail':
+        return <EquipmentDetailPage language={language} equipmentId={selectedEquipmentId} setCurrentPage={setCurrentPage} />;
+      case 'legal':
+        return <LegalNoticePage language={language} />;
+      case 'privacy':
+        return <PrivacyPolicyPage language={language} />;
       default:
         return <HomePage t={t} setCurrentPage={setCurrentPage} />;
     }

@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Zap, X, Navigation, MapIcon, List, Sun, Moon } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Switch } from '../components/ui/switch';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 import { Map, Marker } from 'pigeon-maps';
-import { locations, getMarkerColor, type Location } from '../data/map';
+import { locations, getMarkerColor, isLocationOpen, clusterLocations, isCluster, type Location, type LocationCluster } from '../data/map';
 
 interface WebPageProps {
   t: (key: string) => string;
@@ -47,6 +47,7 @@ export function WebPage({ t, language }: WebPageProps) {
   const [showOtherIcons, setShowOtherIcons] = useState(false);
   const [isMapLoading, setIsMapLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
   const mapContainerRef = useRef<HTMLDivElement>(null);
   
   // Используем ref'ы для хранения текущего состояния - они не вызывают перерендер
@@ -82,6 +83,15 @@ export function WebPage({ t, language }: WebPageProps) {
     
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Обновляем время каждую минуту для проверки расписания работы
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000); // Проверяем каждую минуту
+    
+    return () => clearInterval(timer);
   }, []);
 
   // Симуляция загрузки карты
@@ -237,7 +247,7 @@ export function WebPage({ t, language }: WebPageProps) {
       container.removeEventListener('touchend', handleTouchEnd);
       container.removeEventListener('touchcancel', handleTouchEnd);
     };
-  }, [isMobile]); // ТОЛЬКО isMobile в зависимостях!
+  }, [isMobile, viewMode]); // Переустанавливаем обработчики при переключении режима просмотра
 
   const handleLocationClick = (location: Location) => {
     setSelectedLocation(location);
@@ -248,6 +258,11 @@ export function WebPage({ t, language }: WebPageProps) {
   };
 
   const getStatusText = (location: Location) => {
+    // Проверяем расписание работы
+    if (!isLocationOpen(location)) {
+      return language === 'ru' ? 'Закрыто' : language === 'en' ? 'Closed' : 'Bağlıdır';
+    }
+    
     if (location.closed) {
       return language === 'ru' ? 'Закрыто' : language === 'en' ? 'Closed' : 'Bağlıdır';
     }
@@ -262,9 +277,25 @@ export function WebPage({ t, language }: WebPageProps) {
 
   const getFilteredLocations = () => {
     if (mapFilter === 'all') return locations;
-    if (mapFilter === 'pickup') return locations.filter(loc => !loc.closed && loc.available > 0);
-    if (mapFilter === 'return') return locations.filter(loc => !loc.closed && loc.returnable > 0);
+    if (mapFilter === 'pickup') return locations.filter(loc => isLocationOpen(loc) && !loc.closed && loc.available > 0);
+    if (mapFilter === 'return') return locations.filter(loc => isLocationOpen(loc) && !loc.closed && loc.returnable > 0);
     return locations;
+  };
+
+  // Мемоизация кластеров для оптимизации производительности
+  const clusteredMarkers = useMemo(() => {
+    const filtered = getFilteredLocations();
+    // На мобильных используем кластеризацию при зуме < 14
+    if (isMobile && zoom < 14) {
+      return clusterLocations(filtered, zoom);
+    }
+    return filtered;
+  }, [mapFilter, zoom, isMobile, currentTime]); // currentTime для обновления при изменении времени
+
+  const handleClusterClick = (cluster: LocationCluster) => {
+    // При клике на кластер - приближаем карту
+    setMapCenter([cluster.lat, cluster.lng]);
+    setZoom(Math.min(15, zoom + 2));
   };
 
   return (
@@ -591,8 +622,45 @@ export function WebPage({ t, language }: WebPageProps) {
               animate={!isMobile}
               animateMaxScreens={5}
             >
-              {getFilteredLocations().map((location) => {
-                const color = getMarkerColor(location);
+              {clusteredMarkers.map((item) => {
+                // Проверяем, является ли элемент кластером
+                if (isCluster(item)) {
+                  // Рендерим кластер
+                  return (
+                    <Marker 
+                      key={item.id}
+                      anchor={[item.lat, item.lng]}
+                      payload={item}
+                      onClick={() => handleClusterClick(item)}
+                    >
+                      <div
+                        style={{
+                          cursor: 'pointer',
+                          pointerEvents: 'auto',
+                          width: '40px',
+                          height: '40px',
+                          borderRadius: '50%',
+                          backgroundColor: '#facc15',
+                          color: '#000',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '14px',
+                          fontWeight: 'bold',
+                          border: '3px solid #000',
+                          boxShadow: '0 0 12px rgba(250, 204, 21, 0.8)',
+                        }}
+                      >
+                        {item.count}
+                      </div>
+                    </Marker>
+                  );
+                }
+                
+                // Рендерим обычный маркер
+                const location = item as Location;
+                const color = getMarkerColor(location, true);
+                
                 return (
                   <Marker 
                     key={location.id}
@@ -601,17 +669,15 @@ export function WebPage({ t, language }: WebPageProps) {
                     onClick={() => handleLocationClick(location)}
                   >
                     {isMobile ? (
-                      // Упрощенный маркер для мобильных
+                      // Максимально упрощенный маркер для мобильных - без теней
                       <svg
-                        width="36"
-                        height="36"
+                        width="28"
+                        height="28"
                         viewBox="0 0 24 24"
                         fill={color}
-                        stroke={color}
-                        strokeWidth="2"
+                        stroke="none"
                         style={{
                           cursor: 'pointer',
-                          filter: `drop-shadow(0 0 6px ${color})`,
                           pointerEvents: 'auto',
                         }}
                       >
@@ -664,7 +730,7 @@ export function WebPage({ t, language }: WebPageProps) {
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
           >
             {getFilteredLocations().map((location, index) => {
-              const color = getMarkerColor(location);
+              const color = getMarkerColor(location, true); // Включаем проверку расписания
               return (
                 <motion.div
                   key={location.id}
@@ -706,7 +772,7 @@ export function WebPage({ t, language }: WebPageProps) {
                       <p className="text-white/50 text-sm">{getStatusText(location)}</p>
                     </div>
 
-                    {!location.closed && (
+                    {!location.closed && isLocationOpen(location) && (
                       <div className="grid grid-cols-2 gap-3">
                         <div className="bg-black/30 rounded-lg p-2">
                           <p className="text-white/50 text-xs mb-1">{t('availableToPickup')}</p>
@@ -798,8 +864,8 @@ export function WebPage({ t, language }: WebPageProps) {
                   <div className="flex items-center gap-2">
                     <Zap
                       className="w-4 h-4"
-                      style={{ color: getMarkerColor(selectedLocation) }}
-                      fill={getMarkerColor(selectedLocation)}
+                      style={{ color: getMarkerColor(selectedLocation, true) }}
+                      fill={getMarkerColor(selectedLocation, true)}
                     />
                     <span className="text-white/70 text-sm">{getStatusText(selectedLocation)}</span>
                   </div>
@@ -817,7 +883,7 @@ export function WebPage({ t, language }: WebPageProps) {
                   <p className="text-white">{selectedLocation.workingHours[language]}</p>
                 </div>
 
-                {!selectedLocation.closed && (
+                {!selectedLocation.closed && isLocationOpen(selectedLocation) && (
                   <div className="grid grid-cols-2 gap-4 py-4 border-t border-b border-white/10">
                     <div>
                       <p className="text-white/50 text-sm mb-1">{t('availablePickupOfTotal')}</p>
@@ -835,7 +901,7 @@ export function WebPage({ t, language }: WebPageProps) {
                   <p className="text-yellow-400 font-mono text-lg">{selectedLocation.code}</p>
                 </div>
 
-                {!selectedLocation.closed && (
+                {!selectedLocation.closed && isLocationOpen(selectedLocation) && (
                   <Button 
                     onClick={() => openMapsApp(selectedLocation.lat, selectedLocation.lng, selectedLocation.name[language])}
                     className="w-full bg-yellow-400 text-black hover:bg-yellow-500 shadow-lg shadow-yellow-400/50 cursor-pointer"
@@ -845,7 +911,7 @@ export function WebPage({ t, language }: WebPageProps) {
                   </Button>
                 )}
 
-                {selectedLocation.closed && (
+                {(selectedLocation.closed || !isLocationOpen(selectedLocation)) && (
                   <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 text-center">
                     <p className="text-red-400 text-sm">{t('locationClosed')}</p>
                   </div>

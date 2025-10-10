@@ -1,12 +1,14 @@
 import { motion } from 'motion/react';
-import { DollarSign, TrendingUp, Wrench, Sparkles, BarChart3, HeadphonesIcon, Building2, Send } from 'lucide-react';
+import { DollarSign, TrendingUp, Wrench, Sparkles, BarChart3, HeadphonesIcon, Building2, Send, Box } from 'lucide-react';
 import { useState } from 'react';
+import type { Page } from '../App';
 
 interface PartnersPageProps {
   t: (key: string) => string;
+  setCurrentPage: (page: Page) => void;
 }
 
-export function PartnersPage({ t }: PartnersPageProps) {
+export function PartnersPage({ t, setCurrentPage }: PartnersPageProps) {
   const [formData, setFormData] = useState({
     company: '',
     name: '',
@@ -41,14 +43,18 @@ export function PartnersPage({ t }: PartnersPageProps) {
   ];
 
   return (
-    <div className="min-h-screen pt-24 pb-16">
+    <div className="min-h-screen pt-24 pb-16 relative overflow-hidden">
+      {/* Global background elements */}
+      <div className="fixed inset-0 -z-10">
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-950 to-black" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-yellow-500/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute top-1/3 right-1/4 w-72 h-72 bg-yellow-500/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute bottom-1/3 left-1/3 w-80 h-80 bg-yellow-500/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+      </div>
+
       {/* Hero Section */}
-      <section className="relative py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-yellow-500/10 via-transparent to-transparent" />
-        <div className="absolute inset-0">
-          <div className="absolute top-20 left-1/4 w-72 h-72 bg-yellow-500/20 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-20 right-1/4 w-96 h-96 bg-yellow-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-        </div>
+      <section className="relative py-20">
+        <div className="absolute inset-0 bg-gradient-to-b from-yellow-500/5 via-transparent to-transparent" />
         
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
@@ -63,13 +69,25 @@ export function PartnersPage({ t }: PartnersPageProps) {
             <p className="text-xl text-gray-300 leading-relaxed">
               {t('partnersText')}
             </p>
+
+            {/* Equipment Button */}
+            <motion.button
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              onClick={() => setCurrentPage('equipment')}
+              className="mt-8 inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-yellow-500 to-yellow-600 text-black rounded-xl hover:shadow-[0_0_30px_rgba(255,215,0,0.5)] transition-all duration-300 group"
+            >
+              <Box className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
+              <span>{t('equipment')}</span>
+            </motion.button>
           </motion.div>
         </div>
       </section>
 
       {/* Current Partners */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
+      <section className="relative py-16">
+        <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -106,8 +124,8 @@ export function PartnersPage({ t }: PartnersPageProps) {
       </section>
 
       {/* Benefits */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
+      <section className="relative py-16">
+        <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -148,8 +166,8 @@ export function PartnersPage({ t }: PartnersPageProps) {
       </section>
 
       {/* Partner Form */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
+      <section className="relative py-16">
+        <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -263,8 +281,8 @@ export function PartnersPage({ t }: PartnersPageProps) {
       </section>
 
       {/* Stats */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
+      <section className="relative py-16">
+        <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
