@@ -42,8 +42,8 @@ npm run preview
 
 ## 📞 Контакты
 
-- Email: sales@fastcharge.az
-- Телефон: +994 55 275-55-55
+- Email: fastcharge@fastcharge.az
+- Телефон: +994 77 225-55-55
 - WhatsApp: +994 77 225-55-55
 - Instagram: [@fastcharge.az](https://www.instagram.com/fastcharge.az/)
 

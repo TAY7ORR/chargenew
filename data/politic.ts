@@ -92,7 +92,7 @@ export const policyData: Record<'ru' | 'en' | 'az', PolicyTranslations> = {
         },
         contact: {
           title: 'Контактная информация',
-          content: 'По всем вопросам, связанным с юридическими аспектами работы сервиса, вы можете обратиться по адресу: sales@fastcharge.az или по телефону: +994 55 275-55-55. Наша служба поддержки работает круглосуточно.',
+          content: 'По всем вопросам, связанным с юридическими аспектами работы сервиса, вы можете обратиться по адресу: fastcharge@fastcharge.az или по телефону: +994 77 225-55-55. Наша служба поддержки работает круглосуточно.',
         },
       },
     },
@@ -161,7 +161,7 @@ export const policyData: Record<'ru' | 'en' | 'az', PolicyTranslations> = {
         },
         contact: {
           title: 'Contact Information',
-          content: 'For all questions related to legal aspects of the service, you can contact us at: sales@fastcharge.az or by phone: +994 55 275-55-55. Our support service operates 24/7.',
+          content: 'For all questions related to legal aspects of the service, you can contact us at: fastcharge@fastcharge.az or by phone: +994 77 225-55-55. Our support service operates 24/7.',
         },
       },
     },
@@ -230,7 +230,7 @@ export const policyData: Record<'ru' | 'en' | 'az', PolicyTranslations> = {
         },
         contact: {
           title: 'Əlaqə Məlumatları',
-          content: 'Xidmətin hüquqi aspektləri ilə bağlı bütün suallar üzrə bizə müraciət edə bilərsiniz: sales@fastcharge.az və ya telefon: +994 55 275-55-55. Dəstək xidmətimiz 24/7 işləyir.',
+          content: 'Xidmətin hüquqi aspektləri ilə bağlı bütün suallar üzrə bizə müraciət edə bilərsiniz: fastcharge@fastcharge.az və ya telefon: +994 77 225-55-55. Dəstək xidmətimiz 24/7 işləyir.',
         },
       },
     },

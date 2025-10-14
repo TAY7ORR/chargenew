@@ -254,18 +254,18 @@ export function EquipmentDetailPage({ language, equipmentId, setCurrentPage }: E
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <a
-                      href="mailto:sales@fastcharge.az"
+                      href="mailto:fastcharge@fastcharge.az"
                       className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 text-black rounded-xl hover:shadow-[0_0_30px_rgba(255,215,0,0.5)] transition-all duration-300 group"
                     >
                       <Mail className="w-5 h-5" />
-                      <span>sales@fastcharge.az</span>
+                      <span>fastcharge@fastcharge.az</span>
                     </a>
                     <a
                       href="tel:+994552755555"
                       className="inline-flex items-center gap-3 px-6 py-3 bg-white/5 border border-yellow-500/30 text-yellow-500 rounded-xl hover:bg-yellow-500/10 hover:border-yellow-500/50 transition-all duration-300 group"
                     >
                       <Phone className="w-5 h-5" />
-                      <span>+994 55 275-55-55</span>
+                      <span>+994 77 225-55-55</span>
                     </a>
                   </div>
                 </div>

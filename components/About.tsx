@@ -95,7 +95,7 @@ export function About({ t }: AboutProps) {
               {[
                 { icon: Zap, label: '1000+', sublabel: 'Аренд в день' },
                 { icon: Users, label: '5000+', sublabel: 'Пользователей' },
-                { icon: Target, label: '50+', sublabel: 'Станций' },
+                { icon: Target, label: '325+', sublabel: 'Станций' },
                 { icon: Zap, label: '24/7', sublabel: 'Поддержка' },
               ].map((stat, index) => {
                 const Icon = stat.icon;

@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import { useEffect, useState } from 'react';
+import { AlertTriangle } from 'lucide-react';
 import {
   Accordion,
   AccordionContent,
@@ -48,10 +49,11 @@ export function FAQ({ t }: FAQProps) {
   }, []);
 
   const faqs = [
-    { q: t('faq1Q'), a: t('faq1A') },
-    { q: t('faq2Q'), a: t('faq2A') },
-    { q: t('faq3Q'), a: t('faq3A') },
-    { q: t('faq4Q'), a: t('faq4A') },
+    { q: t('faqImportantQ'), a: t('faqImportantA'), important: true },
+    { q: t('faq1Q'), a: t('faq1A'), important: false },
+    { q: t('faq2Q'), a: t('faq2A'), important: false },
+    { q: t('faq3Q'), a: t('faq3A'), important: false },
+    { q: t('faq4Q'), a: t('faq4A'), important: false },
   ];
 
   return (
@@ -106,10 +108,17 @@ export function FAQ({ t }: FAQProps) {
                 <AccordionItem
                   key={index}
                   value={`item-${index}`}
-                  className="bg-black/50 border border-white/10 rounded-xl px-6 hover:border-yellow-400/50 transition-colors"
+                  className={`${
+                    faq.important
+                      ? 'bg-gradient-to-br from-red-500/10 via-red-600/10 to-red-500/10 border-2 border-red-400/50'
+                      : 'bg-black/50 border border-white/10'
+                  } rounded-xl px-6 hover:border-yellow-400/50 transition-colors`}
                 >
                   <AccordionTrigger className="text-left text-white hover:text-yellow-400 py-6">
-                    {faq.q}
+                    {faq.important && (
+                      <AlertTriangle className="w-5 h-5 text-red-400 mr-3 flex-shrink-0" />
+                    )}
+                    <span className="flex-1">{faq.q}</span>
                   </AccordionTrigger>
                   <AccordionContent className="text-white/70 pb-6">
                     {faq.a}
@@ -135,10 +144,17 @@ export function FAQ({ t }: FAQProps) {
                 >
                   <AccordionItem
                     value={`item-${index}`}
-                    className="bg-black/50 border border-white/10 rounded-xl px-6 hover:border-yellow-400/50 transition-colors"
+                    className={`${
+                      faq.important
+                        ? 'bg-gradient-to-br from-red-500/10 via-red-600/10 to-red-500/10 border-2 border-red-400/50'
+                        : 'bg-black/50 border border-white/10'
+                    } rounded-xl px-6 hover:border-yellow-400/50 transition-colors`}
                   >
                     <AccordionTrigger className="text-left text-white hover:text-yellow-400 py-6">
-                      {faq.q}
+                      {faq.important && (
+                        <AlertTriangle className="w-5 h-5 text-red-400 mr-3 flex-shrink-0" />
+                      )}
+                      <span className="flex-1">{faq.q}</span>
                     </AccordionTrigger>
                     <AccordionContent className="text-white/70 pb-6">
                       {faq.a}

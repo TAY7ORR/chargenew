@@ -172,7 +172,7 @@ export function AboutPage({ t }: AboutPageProps) {
             <div className="relative bg-gradient-to-br from-gray-900 to-black border border-yellow-500/30 rounded-3xl p-12">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                 <div className="text-center">
-                  <div className="text-4xl md:text-5xl text-yellow-500 mb-2">50+</div>
+                  <div className="text-4xl md:text-5xl text-yellow-500 mb-2">325+</div>
                   <div className="text-gray-400">Стаций</div>
                 </div>
                 <div className="text-center">

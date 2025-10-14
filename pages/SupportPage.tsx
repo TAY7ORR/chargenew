@@ -9,7 +9,7 @@ interface SupportPageProps {
 export function SupportPage({ t, setCurrentPage }: SupportPageProps) {
 
   const contactInfo = [
-    { icon: Mail, label: 'Email', value: t('contactEmail'), href: 'mailto:sales@fastcharge.az' },
+    { icon: Mail, label: 'Email', value: t('contactEmail'), href: 'mailto:fastcharge@fastcharge.az' },
     { icon: Phone, label: 'Телефон', value: '+994 77 225 55 55', href: 'tel:+994772255555' },
     { icon: MessageCircle, label: 'WhatsApp', value: '+994 77 225 55 55', href: 'https://wa.me/994772255555' },
     { icon: MapPin, label: 'Офис', value: 'Bakı, Nərimanov rayonu, Yusif Vəzir Çəmənzəminli küçəsi, 14', href: null },

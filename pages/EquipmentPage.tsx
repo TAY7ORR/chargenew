@@ -174,8 +174,8 @@ export function EquipmentPage({ language, setCurrentPage, setSelectedEquipmentId
                     {language === 'az' && 'Qiymətlər, çatdırılma və əməkdaşlıq şərtləri haqqında ətraflı məlumat üçün bizimlə əlaqə saxlayın.'}
                   </p>
                   <div className="flex flex-col gap-2 text-sm text-gray-400">
-                    <p>📧 sales@fastcharge.az</p>
-                    <p>📱 +994 55 275-55-55</p>
+                    <p>📧 fastcharge@fastcharge.az</p>
+                    <p>📱 +994 77 225-55-55</p>
                   </div>
                 </div>
               </div>
