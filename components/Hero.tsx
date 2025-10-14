@@ -91,7 +91,7 @@ export function Hero({ t }: HeroProps) {
                 className="bg-black border-2 border-white hover:bg-white hover:text-black transition-all group"
               >
                 <a 
-                  href="https://apps.apple.com/app/fastcharge" 
+                  href="https://apps.apple.com/app/fast-charge-power-on-the-go/id6749755045" 
                   target="_blank" 
                   rel="noopener noreferrer"
                 >

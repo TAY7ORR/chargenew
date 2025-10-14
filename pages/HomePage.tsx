@@ -1,6 +1,7 @@
 import { Hero } from '../components/Hero';
 import { Benefits } from '../components/Benefits';
 import { HowItWorks } from '../components/HowItWorks';
+import { Pricing } from '../components/Pricing';
 import { FAQ } from '../components/FAQ';
 import { useEffect } from 'react';
 import type { Page } from '../App';
@@ -29,6 +30,7 @@ export function HomePage({ t, setCurrentPage }: HomePageProps) {
       <Hero t={t} setCurrentPage={setCurrentPage} />
       <Benefits t={t} />
       <HowItWorks t={t} />
+      <Pricing t={t} setCurrentPage={setCurrentPage} />
       <FAQ t={t} />
     </>
   );

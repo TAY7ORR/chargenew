@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { Zap, Instagram } from 'lucide-react';
+import { Zap, Instagram, MapPin, Phone } from 'lucide-react';
 import type { Language, Page } from '../App';
 
 interface FooterProps {
@@ -73,6 +73,59 @@ export function Footer({ t, language, setLanguage, setCurrentPage }: FooterProps
             <p className="text-white/60 max-w-md mb-4">
               {t('footerAbout')}
             </p>
+            
+            {/* Contact Info */}
+            <div className="space-y-3">
+              <div className="flex items-start gap-3 group">
+                <div className="relative mt-1">
+                  <MapPin className="w-5 h-5 text-yellow-400" />
+                  <motion.div
+                    className="absolute inset-0 blur-md"
+                    animate={{
+                      opacity: [0.3, 0.6, 0.3],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                    }}
+                  >
+                    <MapPin className="w-5 h-5 text-yellow-400" />
+                  </motion.div>
+                </div>
+                <div>
+                  <p className="text-white/80 text-sm group-hover:text-yellow-400 transition-colors">
+                    {t('contactAddress')}
+                  </p>
+                </div>
+              </div>
+
+              <a 
+                href="tel:+994552755555"
+                className="flex items-start gap-3 group"
+              >
+                <div className="relative mt-1">
+                  <Phone className="w-5 h-5 text-yellow-400" />
+                  <motion.div
+                    className="absolute inset-0 blur-md"
+                    animate={{
+                      opacity: [0.3, 0.6, 0.3],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      delay: 0.5,
+                    }}
+                  >
+                    <Phone className="w-5 h-5 text-yellow-400" />
+                  </motion.div>
+                </div>
+                <div>
+                  <p className="text-white/80 text-sm group-hover:text-yellow-400 transition-colors">
+                    {t('contactPhone')}
+                  </p>
+                </div>
+              </a>
+            </div>
           </div>
 
           {/* Quick Links */}

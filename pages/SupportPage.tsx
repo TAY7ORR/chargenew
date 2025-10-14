@@ -1,6 +1,5 @@
 import { motion } from 'motion/react';
-import { Mail, MapPin, Clock, Send, Instagram, MessageCircle } from 'lucide-react';
-import { useState } from 'react';
+import { Mail, MapPin, Clock, Instagram, MessageCircle, Phone } from 'lucide-react';
 
 interface SupportPageProps {
   t: (key: string) => string;
@@ -8,24 +7,12 @@ interface SupportPageProps {
 }
 
 export function SupportPage({ t, setCurrentPage }: SupportPageProps) {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: '',
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Here you would typically send the form data to your backend
-    alert('Спасибо! Ваше сообщение отправлено.');
-    setFormData({ name: '', email: '', message: '' });
-  };
 
   const contactInfo = [
     { icon: Mail, label: 'Email', value: t('contactEmail'), href: 'mailto:sales@fastcharge.az' },
-    { icon: MessageCircle, label: 'WhatsApp', value: '+994 77 225 55 55', href: 'http://wa.me/994772255555' },
-    { icon: MapPin, label: 'Адрес', value: t('contactAddress'), href: null },
+    { icon: Phone, label: 'Телефон', value: '+994 77 225 55 55', href: 'tel:+994772255555' },
+    { icon: MessageCircle, label: 'WhatsApp', value: '+994 77 225 55 55', href: 'https://wa.me/994772255555' },
+    { icon: MapPin, label: 'Офис', value: 'Bakı, Nərimanov rayonu, Yusif Vəzir Çəmənzəminli küçəsi, 14', href: null },
     { icon: Clock, label: t('workingHours'), value: t('workingHoursText'), href: null },
   ];
 
@@ -119,6 +106,8 @@ export function SupportPage({ t, setCurrentPage }: SupportPageProps) {
                       <motion.a
                         key={index}
                         href={social.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         whileHover={{ scale: 1.1, y: -5 }}
                         whileTap={{ scale: 0.95 }}
                         className="w-12 h-12 bg-gray-900 border border-gray-800 hover:border-yellow-500/50 rounded-xl flex items-center justify-center group transition-all"
@@ -131,74 +120,41 @@ export function SupportPage({ t, setCurrentPage }: SupportPageProps) {
               </div>
             </motion.div>
 
-            {/* Contact Form */}
+            {/* Office Map */}
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              <div className="relative">
+              <div className="relative h-full">
                 <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/20 to-transparent rounded-2xl blur-xl" />
-                <div className="relative bg-gradient-to-br from-gray-900 to-black border border-yellow-500/30 rounded-2xl p-8">
-                  <h2 className="text-3xl mb-6">Напишите нам</h2>
+                <div className="relative bg-gradient-to-br from-gray-900 to-black border border-yellow-500/30 rounded-2xl p-6 h-full flex flex-col">
+                  <h2 className="text-3xl mb-4">Наш офис</h2>
                   
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    <div>
-                      <label htmlFor="name" className="block text-sm text-gray-400 mb-2">
-                        {t('namePlaceholder')}
-                      </label>
-                      <input
-                        type="text"
-                        id="name"
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="w-full bg-black border border-gray-800 focus:border-yellow-500/50 rounded-xl px-4 py-3 outline-none transition-colors"
-                        placeholder={t('namePlaceholder')}
-                        required
-                      />
+                  {/* Address */}
+                  <div className="mb-4">
+                    <div className="flex items-start gap-3">
+                      <MapPin className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-1" />
+                      <p className="text-lg text-gray-300">
+                        Bakı şəhəri, Nərimanov rayonu,<br />
+                        Yusif Vəzir Çəmənzəminli küçəsi, 14
+                      </p>
                     </div>
+                  </div>
 
-                    <div>
-                      <label htmlFor="email" className="block text-sm text-gray-400 mb-2">
-                        {t('emailPlaceholder')}
-                      </label>
-                      <input
-                        type="email"
-                        id="email"
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="w-full bg-black border border-gray-800 focus:border-yellow-500/50 rounded-xl px-4 py-3 outline-none transition-colors"
-                        placeholder={t('emailPlaceholder')}
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label htmlFor="message" className="block text-sm text-gray-400 mb-2">
-                        {t('messagePlaceholder')}
-                      </label>
-                      <textarea
-                        id="message"
-                        value={formData.message}
-                        onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                        rows={6}
-                        className="w-full bg-black border border-gray-800 focus:border-yellow-500/50 rounded-xl px-4 py-3 outline-none transition-colors resize-none"
-                        placeholder={t('messagePlaceholder')}
-                        required
-                      />
-                    </div>
-
-                    <motion.button
-                      type="submit"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="w-full bg-yellow-500 text-black py-4 rounded-xl hover:bg-yellow-400 transition-colors shadow-lg shadow-yellow-500/50 flex items-center justify-center gap-2"
-                    >
-                      <Send className="w-5 h-5" />
-                      <span>{t('sendButton')}</span>
-                    </motion.button>
-                  </form>
+                  {/* Google Map - Занимает оставшееся пространство */}
+                  <div className="flex-1 rounded-xl overflow-hidden" style={{ minHeight: '400px' }}>
+                    <iframe 
+                      src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d759.5826363123366!2d49.8312815696604!3d40.401527619494715!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNDDCsDI0JzA1LjUiTiA0OcKwNDknNTQuOSJF!5e0!3m2!1sru!2saz!4v1760472527164!5m2!1sru!2saz"
+                      className="w-full h-full"
+                      style={{ border: 0 }}
+                      allowFullScreen
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      title="Fast Charge Office Location"
+                    />
+                  </div>
                 </div>
               </div>
             </motion.div>
