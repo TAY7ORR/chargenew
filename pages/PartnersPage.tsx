@@ -7,7 +7,7 @@ interface PartnersPageProps {
   setCurrentPage: (page: Page) => void;
 }
 
-export function PartnersPage({ t, setCurrentPage }: PartnersPageProps) {
+export function PartnersPage({ t }: PartnersPageProps) {
 
   const benefits = [
     { icon: DollarSign, title: t('partnerBenefit1'), text: t('partnerBenefit1Text') },
