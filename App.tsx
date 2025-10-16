@@ -11,9 +11,10 @@ import { LegalNoticePage } from './pages/LegalNoticePage';
 import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
 import { EquipmentPage } from './pages/EquipmentPage';
 import { EquipmentDetailPage } from './pages/EquipmentDetailPage';
+import { HowToUseQRPage } from './pages/HowToUseQRPage';
 
 export type Language = 'ru' | 'en' | 'az';
-export type Page = 'home' | 'about' | 'app' | 'support' | 'partners' | 'web' | 'legal' | 'privacy' | 'equipment' | 'equipment-detail';
+export type Page = 'home' | 'about' | 'app' | 'support' | 'partners' | 'web' | 'legal' | 'privacy' | 'equipment' | 'equipment-detail' | 'how-to-use-qr';
 
 export interface Translations {
   ru: Record<string, string | string[]>;
@@ -452,6 +453,14 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home');
   const [selectedEquipmentId, setSelectedEquipmentId] = useState<string | null>(null);
 
+  // Обработка URL при загрузке страницы
+  useEffect(() => {
+    const path = window.location.pathname;
+    if (path === '/how-to-use-qr-fastcharge/' || path === '/how-to-use-qr-fastcharge') {
+      setCurrentPage('how-to-use-qr');
+    }
+  }, []);
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, [currentPage]);
@@ -522,6 +531,8 @@ export default function App() {
         return <LegalNoticePage language={language} />;
       case 'privacy':
         return <PrivacyPolicyPage language={language} />;
+      case 'how-to-use-qr':
+        return <HowToUseQRPage />;
       default:
         return <HomePage t={t} setCurrentPage={setCurrentPage} />;
     }
