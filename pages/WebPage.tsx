@@ -252,10 +252,11 @@ export function WebPage({ t, language }: WebPageProps) {
   const handleLocationClick = (location: Location) => {
     setSelectedLocation(location);
     if (viewMode === 'map') {
-      setMapCenter([location.lat, location.lng]);
+      setMapCenter([location.latitude, location.longitude]);
       setZoom(15);
     }
   };
+
 
   const getStatusText = (location: Location) => {
     // Проверяем расписание работы
@@ -263,22 +264,22 @@ export function WebPage({ t, language }: WebPageProps) {
       return language === 'ru' ? 'Закрыто' : language === 'en' ? 'Closed' : 'Bağlıdır';
     }
     
-    if (location.closed) {
-      return language === 'ru' ? 'Закрыто' : language === 'en' ? 'Closed' : 'Bağlıdır';
-    }
-    if (location.available > 0 && location.returnable > 0) {
+    if (location.borrow > 0 && location.return > 0) {
       return language === 'ru' ? 'Можно забрать и вернуть' : language === 'en' ? 'Can pick up & return' : 'Götürmək və qaytarmaq olar';
     }
-    if (location.available > 0) {
+    if (location.borrow > 0) {
       return language === 'ru' ? 'Можно только забрать' : language === 'en' ? 'Pick up only' : 'Yalnız götürmək olar';
     }
-    return language === 'ru' ? 'Можно только вернуть' : language === 'en' ? 'Return only' : 'Yalnız qaytarmaq olar';
+    if (location.return > 0) {
+      return language === 'ru' ? 'Можно только вернуть' : language === 'en' ? 'Return only' : 'Yalnız qaytarmaq olar';
+    }
+    return language === 'ru' ? 'Недоступно' : language === 'en' ? 'Unavailable' : 'Əlçatan deyil';
   };
 
   const getFilteredLocations = () => {
     if (mapFilter === 'all') return locations;
-    if (mapFilter === 'pickup') return locations.filter(loc => isLocationOpen(loc) && !loc.closed && loc.available > 0);
-    if (mapFilter === 'return') return locations.filter(loc => isLocationOpen(loc) && !loc.closed && loc.returnable > 0);
+    if (mapFilter === 'pickup') return locations.filter(loc => isLocationOpen(loc) && loc.borrow > 0);
+    if (mapFilter === 'return') return locations.filter(loc => isLocationOpen(loc) && loc.return > 0);
     return locations;
   };
 
@@ -294,7 +295,7 @@ export function WebPage({ t, language }: WebPageProps) {
 
   const handleClusterClick = (cluster: LocationCluster) => {
     // При клике на кластер - приближаем карту
-    setMapCenter([cluster.lat, cluster.lng]);
+    setMapCenter([cluster.latitude, cluster.longitude]);
     setZoom(Math.min(15, zoom + 2));
   };
 
@@ -629,7 +630,7 @@ export function WebPage({ t, language }: WebPageProps) {
                   return (
                     <Marker 
                       key={item.id}
-                      anchor={[item.lat, item.lng]}
+                      anchor={[item.latitude, item.longitude]}
                       payload={item}
                       onClick={() => handleClusterClick(item)}
                     >
@@ -664,7 +665,7 @@ export function WebPage({ t, language }: WebPageProps) {
                 return (
                   <Marker 
                     key={location.id}
-                    anchor={[location.lat, location.lng]}
+                    anchor={[location.latitude, location.longitude]}
                     payload={location}
                     onClick={() => handleLocationClick(location)}
                   >
@@ -743,8 +744,8 @@ export function WebPage({ t, language }: WebPageProps) {
                   {/* Image */}
                   <div className="relative h-40 overflow-hidden">
                     <ImageWithFallback
-                      src={location.image}
-                      alt={location.name[language]}
+                      src={location.picture}
+                      alt={location.name}
                       className={`w-full h-full object-cover ${isMobile ? '' : 'group-hover:scale-110 transition-transform duration-300'}`}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 to-transparent" />
@@ -768,25 +769,25 @@ export function WebPage({ t, language }: WebPageProps) {
                   {/* Content */}
                   <div className="p-4 space-y-3">
                     <div>
-                      <h3 className="text-white text-lg mb-1">{location.name[language]}</h3>
+                      <h3 className="text-white text-lg mb-1">{location.name}</h3>
                       <p className="text-white/50 text-sm">{getStatusText(location)}</p>
                     </div>
 
-                    {!location.closed && isLocationOpen(location) && (
+                    {isLocationOpen(location) && (
                       <div className="grid grid-cols-2 gap-3">
                         <div className="bg-black/30 rounded-lg p-2">
                           <p className="text-white/50 text-xs mb-1">{t('availableToPickup')}</p>
-                          <p className="text-white text-lg">{location.available}</p>
+                          <p className="text-white text-lg">{location.borrow}</p>
                         </div>
                         <div className="bg-black/30 rounded-lg p-2">
                           <p className="text-white/50 text-xs mb-1">{t('availableToReturn')}</p>
-                          <p className="text-white text-lg">{location.returnable}</p>
+                          <p className="text-white text-lg">{location.return}</p>
                         </div>
                       </div>
                     )}
 
                     <div className="flex items-center justify-between pt-2 border-t border-white/10">
-                      <p className="text-yellow-400 font-mono text-sm">{location.code}</p>
+                      <p className="text-white/50 text-xs">{location.addrs}</p>
                     </div>
                   </div>
                 </motion.div>
@@ -850,8 +851,8 @@ export function WebPage({ t, language }: WebPageProps) {
               {/* Image */}
               <div className="relative h-48 overflow-hidden">
                 <ImageWithFallback
-                  src={selectedLocation.image}
-                  alt={selectedLocation.name[language]}
+                  src={selectedLocation.picture}
+                  alt={selectedLocation.name}
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 to-transparent" />
@@ -860,7 +861,7 @@ export function WebPage({ t, language }: WebPageProps) {
               {/* Content */}
               <div className="p-6 space-y-4">
                 <div>
-                  <h3 className="text-white mb-2">{selectedLocation.name[language]}</h3>
+                  <h3 className="text-white mb-2">{selectedLocation.name}</h3>
                   <div className="flex items-center gap-2">
                     <Zap
                       className="w-4 h-4"
@@ -874,36 +875,36 @@ export function WebPage({ t, language }: WebPageProps) {
                 {/* Address */}
                 <div className="bg-black/30 rounded-lg p-3 border-t border-white/10">
                   <p className="text-white/50 text-sm mb-1">{t('locationAddress')}</p>
-                  <p className="text-white">{selectedLocation.address[language]}</p>
+                  <p className="text-white">{selectedLocation.addrs}</p>
                 </div>
 
                 {/* Working Hours */}
                 <div className="bg-black/30 rounded-lg p-3 border-t border-white/10">
                   <p className="text-white/50 text-sm mb-1">{t('workingHours')}</p>
-                  <p className="text-white">{selectedLocation.workingHours[language]}</p>
+                  <p className="text-white">{selectedLocation.operate_time}</p>
                 </div>
 
-                {!selectedLocation.closed && isLocationOpen(selectedLocation) && (
+                {isLocationOpen(selectedLocation) && (
                   <div className="grid grid-cols-2 gap-4 py-4 border-t border-b border-white/10">
                     <div>
-                      <p className="text-white/50 text-sm mb-1">{t('availablePickupOfTotal')}</p>
-                      <p className="text-white text-xl">{selectedLocation.available} / {selectedLocation.totalSlots}</p>
+                      <p className="text-white/50 text-sm mb-1">{t('availableToPickup')}</p>
+                      <p className="text-white text-xl">{selectedLocation.borrow}</p>
                     </div>
                     <div>
-                      <p className="text-white/50 text-sm mb-1">{t('availableReturnOfTotal')}</p>
-                      <p className="text-white text-xl">{selectedLocation.returnable} / {selectedLocation.totalSlots}</p>
+                      <p className="text-white/50 text-sm mb-1">{t('availableToReturn')}</p>
+                      <p className="text-white text-xl">{selectedLocation.return}</p>
                     </div>
                   </div>
                 )}
 
                 <div>
-                  <p className="text-white/50 text-sm mb-1">{t('locationCode')}</p>
-                  <p className="text-yellow-400 font-mono text-lg">{selectedLocation.code}</p>
+                  <p className="text-white/50 text-sm mb-1">{t('locationId')}</p>
+                  <p className="text-yellow-400 font-mono text-lg">#{selectedLocation.id}</p>
                 </div>
 
-                {!selectedLocation.closed && isLocationOpen(selectedLocation) && (
+                {isLocationOpen(selectedLocation) && (
                   <Button 
-                    onClick={() => openMapsApp(selectedLocation.lat, selectedLocation.lng, selectedLocation.name[language])}
+                    onClick={() => openMapsApp(selectedLocation.latitude, selectedLocation.longitude, selectedLocation.name)}
                     className="w-full bg-yellow-400 text-black hover:bg-yellow-500 shadow-lg shadow-yellow-400/50 cursor-pointer"
                   >
                     <Navigation className="w-4 h-4 mr-2" />
@@ -911,7 +912,7 @@ export function WebPage({ t, language }: WebPageProps) {
                   </Button>
                 )}
 
-                {(selectedLocation.closed || !isLocationOpen(selectedLocation)) && (
+                {!isLocationOpen(selectedLocation) && (
                   <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 text-center">
                     <p className="text-red-400 text-sm">{t('locationClosed')}</p>
                   </div>

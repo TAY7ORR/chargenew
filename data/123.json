@@ -1,0 +1,66 @@
+[
+  {
+    "id": "1",
+    "name": {
+      "ru": "Dinner Döner",
+      "en": "Dinner Döner",
+      "az": "Dinner Döner"
+    },
+    "address": {
+      "ru": "69 ул. Истиглалият, Bakı 1000",
+      "en": "69 Istiglaliyyat St, Baku 1000",
+      "az": "Istiglaliyyat küçəsi 69, Bakı 1000"
+    },
+    "lat": 40.368891064256744,
+    "lng": 49.833677210106835,
+    "available": 5,
+    "returnable": 3,
+    "totalSlots": 10,
+    "code": "NEW001",
+    "closed": false,
+    "image": "https://avatars.mds.yandex.net/get-altay/10376970/2a0000018defb7081ed5713b13a9dc39c628/L_height",
+    "workingHours": {
+      "ru": "12:00 - 01:00",
+      "en": "12:00 PM - 1:00 AM",
+      "az": "12:00 - 01:00"
+    },
+    "schedule": {
+      "startHour": 12,
+      "startMinute": 0,
+      "endHour": 1,
+      "endMinute": 0
+    }
+  },
+  {
+    "id": "2",
+    "name": {
+      "ru": "4 Loft Cafe",
+      "en": "4 Loft Cafe",
+      "az": "4 Loft Cafe"
+    },
+    "address": {
+      "ru": "улица Тагиева Гаджи Зейналабдина, 27A, Баку",
+      "en": "27A Taghiyeva Gadji Zeynalabdin Street, Baku",
+      "az": "Təğiyev Gədji Zeynalabdin küçəsi 27A, Bakı"
+    },
+    "lat": 40.3707,
+    "lng": 49.838146,
+    "available": 12,
+    "returnable": 0,
+    "totalSlots": 12,
+    "code": "NEW002",
+    "closed": false,
+    "image": "https://avatars.mds.yandex.net/get-altay/3569559/2a0000017b0d15eed01fa0cc00e5dccf3219/XXXL.jpg",
+    "workingHours": {
+      "ru": "11:00 - 00:00",
+      "en": "11:00 AM - 12:00 AM",
+      "az": "11:00 - 00:00"
+    },
+      "schedule": {
+        "startHour": 11,
+        "startMinute": 0,
+        "endHour": 0,
+        "endMinute": 0
+      }
+    }
+  ]
